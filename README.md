@@ -4,5 +4,5 @@ Fast POI Extractor
 
 Description
 ======
-    FSPEx is a blazzingly fast osm poi extractor for inferance analysis
+    FSPEx is a blazingly fast osm poi extractor for inferance analysis
     
