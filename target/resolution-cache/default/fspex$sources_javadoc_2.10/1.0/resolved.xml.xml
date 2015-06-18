@@ -4,7 +4,7 @@
 		module="fspex$sources_javadoc_2.10"
 		revision="1.0"
 		status="integration"
-		publication="20150416161125"
+		publication="20150618153853"
 	/>
 	<configurations>
 		<conf name="compile" visibility="public" description=""/>

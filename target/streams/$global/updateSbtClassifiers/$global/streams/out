@@ -703,9 +703,9 @@
 [debug] 	[NOT REQUIRED] org.scala-sbt#test-agent;0.13.8!test-agent.jar
 [debug] 	[NOT REQUIRED] org.scala-sbt#test-interface;1.0!test-interface.jar
 [debug] 	[NOT REQUIRED] org.scala-sbt#apply-macro;0.13.8!apply-macro.jar
-[debug] :: resolution report :: resolve 4079ms :: artifacts dl 520ms
+[debug] :: resolution report :: resolve 2766ms :: artifacts dl 92ms
 [debug] 	report for default#fspex$sbt_2.10;1.0 default produced in /Users/administrateur/LAAS/FSPEx/target/resolution-cache/reports/default-fspex$sbt_2.10-default.xml
-[debug] 	resolve done (4079ms resolve - 520ms download)
+[debug] 	resolve done (2766ms resolve - 92ms download)
 [debug] Using inline dependencies specified in Scala.
 [debug] :: resolving dependencies :: default#fspex$sources_2.10;1.0
 [debug] 	confs: [default]
@@ -1069,6 +1069,6 @@
 [debug] 	[NOT REQUIRED] org.scala-sbt#precompiled-2_8_2;0.13.8!precompiled-2_8_2.jar(src)
 [debug] 	[NOT REQUIRED] org.scala-sbt#precompiled-2_9_2;0.13.8!precompiled-2_9_2.jar(src)
 [debug] 	[NOT REQUIRED] org.scala-sbt#precompiled-2_9_3;0.13.8!precompiled-2_9_3.jar(src)
-[debug] :: resolution report :: resolve 314ms :: artifacts dl 52ms
+[debug] :: resolution report :: resolve 805ms :: artifacts dl 174ms
 [debug] 	report for default#fspex$sources_2.10;1.0 default produced in /Users/administrateur/LAAS/FSPEx/target/resolution-cache/reports/default-fspex$sources_2.10-default.xml
-[debug] 	resolve done (314ms resolve - 52ms download)
+[debug] 	resolve done (805ms resolve - 174ms download)
