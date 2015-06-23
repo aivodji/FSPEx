@@ -2,8 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/fspex.iml" filepath="$PROJECT_DIR$/.idea/modules/fspex.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/fspex-build.iml" filepath="$PROJECT_DIR$/.idea/modules/fspex-build.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/osm-vrp.iml" filepath="$PROJECT_DIR$/.idea/modules/osm-vrp.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/osm-vrp-build.iml" filepath="$PROJECT_DIR$/.idea/modules/osm-vrp-build.iml" />
     </modules>
   </component>
 </project>

@@ -160,44 +160,37 @@ object WayInfo {
       case "motorway_link" => CarOnly(wayId,tags)
       case "trunk" => CarOnly(wayId,tags)
       case "trunk_link" => CarOnly(wayId,tags)
-
-      case "primary" => WalkOrBikeOrCar(wayId,tags)
-      case "primary_link" => WalkOrBikeOrCar(wayId,tags)
-      case "secondary" => WalkOrBikeOrCar(wayId,tags)
-      case "secondary_link" => WalkOrBikeOrCar(wayId,tags)
-      case "tertiary" => WalkOrBikeOrCar(wayId,tags)
-      case "tertiary_link" => WalkOrBikeOrCar(wayId,tags)
-      case "living_street" => WalkOrBikeOrCar(wayId,tags)
-      case "residential" => WalkOrBikeOrCar(wayId,tags)
-      case "unclassified" => WalkOrBikeOrCar(wayId,tags)
-      case "track" => WalkOrBikeOrCar(wayId,tags)
-      case "road" => WalkOrBikeOrCar(wayId,tags)
-
-
-      case "pedestrian" => WalkOrBike(wayId,tags)
+      case "primary" => CarOnly(wayId,tags)
+      case "primary_link" => CarOnly(wayId,tags)
+      case "secondary" => CarOnly(wayId,tags)
+      case "secondary_link" => CarOnly(wayId,tags)
+      case "tertiary" => CarOnly(wayId,tags)
+      case "tertiary_link" => CarOnly(wayId,tags)
+      case "living_street" => CarOnly(wayId,tags)
+      case "residential" => CarOnly(wayId,tags)
+      case "unclassified" => CarOnly(wayId,tags)
+      case "track" => CarOnly(wayId,tags)
+      case "road" => CarOnly(wayId,tags)
 
 
-
-
-      case "service" => WalkOrBike(wayId,tags)
-      case "bus_guideway" => Impassable
-      case "raceway" => Impassable
-      case "path" => WalkOrBike(wayId,tags)
-      case "footway" => WalkOrBike(wayId,tags)
-      case "cycleway" => WalkOrBike(wayId,tags)
-      case "bridleway" => WalkOrBike(wayId,tags)
-      case "steps" => WalkOnly(wayId,tags)
-      case "proposed" => Impassable
-      case "construction" => Impassable
-      case "bus_stop" => WalkOnly(wayId,tags)
-      case "crossing" => WalkOrBike(wayId,tags)
-      case "emergency_access_point" => Impassable
-      case "escape" => Impassable
-      case "give_way" => Impassable
-      case "mini_roundabout" => WalkOrBike(wayId,tags)
-      case "motorway_junction" => Impassable
-
-      case "parking" => WalkOrCar(wayId,tags)
+      case "pedestrian" => CarOnly(wayId,tags)
+      case "service" => CarOnly(wayId,tags)
+      case "bus_guideway" => CarOnly(wayId,tags)
+      case "raceway" => CarOnly(wayId,tags)
+      case "path" => CarOnly(wayId,tags)
+      case "footway" => CarOnly(wayId,tags)
+      case "cycleway" => CarOnly(wayId,tags)
+      case "bridleway" => CarOnly(wayId,tags)
+      case "steps" => CarOnly(wayId,tags)
+      case "proposed" => CarOnly(wayId,tags)
+      case "construction" => CarOnly(wayId,tags)
+      case "bus_stop" => CarOnly(wayId,tags)
+      case "crossing" => CarOnly(wayId,tags)
+      case "emergency_access_point" => CarOnly(wayId,tags)
+      case "escape" => CarOnly(wayId,tags)
+      case "give_way" => CarOnly(wayId,tags)
+      case "mini_roundabout" => CarOnly(wayId,tags)
+      case "parking" => CarOnly(wayId,tags)
 
       case _ => Impassable
     }

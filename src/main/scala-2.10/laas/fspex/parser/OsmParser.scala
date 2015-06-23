@@ -5,10 +5,11 @@ package laas.fspex.parser
  */
 
 
+
 import laas.fspex.model._
+import laas.fspex.spp.Dijkstra
 import laas.fspex.utils._
 
-import scala.collection.mutable
 import scala.io.Source
 import scala.xml.MetaData
 import scala.xml.pull._
@@ -21,7 +22,36 @@ import scala.xml.pull._
 
 import java.io._
 
+import scala.util.Random
+
 object OsmParser {
+
+  def write[WeightedGraph](path:String,o:WeightedGraph) = {
+    val file = new FileOutputStream(path)
+    val buffer = new BufferedOutputStream(file)
+    val output = new ObjectOutputStream(buffer)
+    try {
+      output.writeObject(o)
+    } catch {
+      case e:Exception =>
+        val f = new File(path)
+        if(f.exists) { f.delete }
+        throw e
+    } finally{
+      output.close()
+    }
+  }
+   def read[WeightedGraph](path:String):WeightedGraph = {
+    val input = new ObjectInputStream(new FileInputStream(path)) {
+      override def resolveClass(desc: java.io.ObjectStreamClass): Class[_] = {
+        try { Class.forName(desc.getName, false, getClass.getClassLoader) }
+        catch { case ex: ClassNotFoundException => super.resolveClass(desc) }
+      }
+    }
+
+     input.readObject().asInstanceOf[WeightedGraph]
+
+  }
 
   def getAttrib(attrs:MetaData, name:String) = {
     val attr = attrs(name)
@@ -42,82 +72,68 @@ object OsmParser {
     nodes(id) = StreetVertex(Location(lat,lon),id)
   }
 
-  def addWalkEdge(v1:Vertex,v2:Vertex,w:Duration,graph:MutableGraph,wayInfo:WayInfo) = {
-    val edgeSet = graph.edges(v1)
-    edgeSet.find(e => e.target == v2 && e.mode == Walking) match {
-      case Some(_) => // pass
-      case None =>
-        edgeSet.addEdge(WalkEdge(v2,w))
-    }
-  }
+  def createEdge(wayNodes:Seq[Vertex],wayInfo:WayInfo,graph:WeightedGraph)={
 
-  def addBikeEdge(v1:Vertex,v2:Vertex,d:Duration,graph:MutableGraph) = {
-    val edgeSet = graph.edges(v1)
-    edgeSet.find(e => e.target == v2 && e.mode == Biking) match {
-      case Some(_) => // pass
-      case None =>
-        edgeSet.addEdge(BikeEdge(v2,d))
-    }
-  }
+      wayNodes.reduceLeft { (v1, v2) =>
+        graph.addNode(v1)
+        graph.addNode(v2)
 
-  def addCarEdge(v1:Vertex,v2:Vertex,d:Duration,graph:MutableGraph) = {
-    val edgeSet = graph.edges(v1)
-    edgeSet.find(e => e.target == v2 && e.mode == Driving) match {
-      case Some(_) => // pass
-      case None =>
-        edgeSet.addEdge(DriveEdge(v2,d))
-    }
-  }
+    //val v1=wayNodes(0)
+    //val v2=wayNodes(wayNodes.length-1)
 
-  def createWayEdges(wayNodes:Seq[Vertex],wayInfo:WayInfo,graph:MutableGraph) = {
-    wayNodes.reduceLeft { (v1,v2) =>
-      if(!graph.contains(v1)) { graph += v1 }
-      if(!graph.contains(v2)) { graph += v2 }
+        val n1 = graph.addNode(v1)
+        val n2=graph.addNode(v2)
 
-      if(wayInfo.isWalkable) {
-        val d = Duration((Distance.distance(v1.location,v2.location) / wayInfo.walkSpeed).toInt)
-        addWalkEdge(v1,v2,d,graph,wayInfo)
-        addWalkEdge(v2,v1,d,graph,wayInfo)
-      }
+        (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
 
-      if(wayInfo.isBikable) {
-        val d = Duration((Distance.distance(v1.location,v2.location) / wayInfo.bikeSpeed).toInt)
-        wayInfo.direction match {
-          case OneWay =>
-            addBikeEdge(v1,v2,d,graph)
-          case OneWayReverse =>
-            addBikeEdge(v2,v1,d,graph)
-          case BothWays =>
-            addBikeEdge(v1,v2,d,graph)
-            addBikeEdge(v2,v1,d,graph)
+        (n2.connectWith(n1)).setWeight(Distance.distance(v1.location,v2.location))
+
+
+        /*if(wayInfo.isWalkable) {
+          (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
         }
-      }
 
-      if(wayInfo.isDrivable) {
-        val d = Duration((Distance.distance(v1.location,v2.location) / wayInfo.carSpeed).toInt)
-        wayInfo.direction match {
-          case OneWay =>
-            addCarEdge(v1,v2,d,graph)
-          case OneWayReverse =>
-            addCarEdge(v2,v1,d,graph)
-          case BothWays =>
-            addCarEdge(v1,v2,d,graph)
-            addCarEdge(v2,v1,d,graph)
+        if(wayInfo.isBikable) {
+          wayInfo.direction match {
+            case OneWay =>
+              (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
+            case OneWayReverse =>
+              (n2.connectWith(n1)).setWeight(Distance.distance(v1.location,v2.location))
+            case BothWays =>
+              (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
+              (n2.connectWith(n1)).setWeight(Distance.distance(v1.location,v2.location))
+
+          }
         }
+
+        if(wayInfo.isDrivable) {
+
+          wayInfo.direction match {
+            case OneWay =>
+              (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
+            case OneWayReverse =>
+              (n2.connectWith(n1)).setWeight(Distance.distance(v1.location,v2.location))
+            case BothWays =>
+              (n1.connectWith(n2)).setWeight(Distance.distance(v1.location,v2.location))
+              (n2.connectWith(n1)).setWeight(Distance.distance(v1.location,v2.location))
+          }
+        }*/
+
+
+        v2
       }
-
-      v2
     }
-  }
 
-  def parseWay(parser:XMLEventReader,
+
+  def parseRoad(parser:XMLEventReader,
                wayAttribs:MetaData,
                nodes:mutable.Map[String,Vertex],
-               graph:MutableGraph):List[Vertex] = {
+                roads:mutable.Map[String,Road],
+                graph:WeightedGraph
+               )= {
     val wayNodes = mutable.ListBuffer[Vertex]()
     var break = !parser.hasNext
     var wayInfo:WayInfo = null
-    var wayEdges = 0
 
     val wayId = getAttrib(wayAttribs,"id")
 
@@ -128,18 +144,30 @@ object OsmParser {
         case EvElemStart(_,"nd",attrs,_) =>
           val id = getAttrib(attrs,"ref")
           if(nodes.contains(id)) {
-            val v = nodes(id)
+            val v=nodes(id)
             wayNodes += v
           }
         case EvElemStart(_,"tag",attrs,_) =>
           val k = getAttrib(attrs,"k")
           val v = getAttrib(attrs,"v")
           tags(k) = v
-        case EvElemEnd(_,"way") =>
-          wayInfo = WayInfo.fromTags(wayId,tags.toMap)
-          if(wayInfo.isWalkable) {
-            createWayEdges(wayNodes,wayInfo,graph)
-            wayEdges += wayNodes.length - 1
+        case EvElemEnd(_,"way") => wayInfo = WayInfo.fromTags(wayId,tags.toMap)
+
+          if(wayInfo.isDrivable) {
+
+            createEdge(wayNodes,wayInfo,graph)
+
+            var name="Rue sans nom"
+            if (wayInfo.tags.contains("name")){
+              name=wayInfo.tags("name")
+            }
+
+            var distance=0.0
+            wayNodes.reduceLeft { (v1,v2) =>
+              distance+=Distance.distance(v1.location,v2.location)
+              v2}
+
+            roads(wayId)=Road(name,wayInfo.tags("highway"),wayNodes(0),wayNodes(wayNodes.length-1),distance,wayNodes)
           }
           break = true
         case _ => // pass
@@ -147,22 +175,16 @@ object OsmParser {
       break = break || !parser.hasNext
     }
 
-    wayInfo match {
-      case _:Walkable => wayNodes.toList
-      case x =>
-        List[Vertex]()
-    }
   }
 
-  def parse(osmPath:String):ParseResult = {
+
+
+  def vrp(osmPath:String, save:String,numb:Int)= {
     val nodes = mutable.Map[String,Vertex]()
-    var ways = 0
-    var wayEdges = 0
-    val wayNodes = mutable.Set[Vertex]()
+    val roads= mutable.Map[String,Road]()
+    val graph = new WeightedGraph(100.0)
 
-    val graph = MutableGraph()
-
-    Logger.timed("Parsing OSM XML into nodes and edges...",
+    Logger.timed("Parsing OSM XML into nodes and roads...",
       "OSM XML parsing complete.") { () =>
       val source = Source.fromFile(osmPath)
 
@@ -170,15 +192,11 @@ object OsmParser {
         val parser = new XMLEventReader(source)
         while(parser.hasNext) {
           parser.next match {
+
             case EvElemStart(_,"node",attrs,_) =>
               parseNode(attrs,nodes)
-            case EvElemStart(_,"way",attrs,_) =>
-              val thisWayNodes = parseWay(parser,attrs,nodes,graph)
-              if(!thisWayNodes.isEmpty) {
-                ways += 1
-                wayEdges += thisWayNodes.size
-                wayNodes ++= thisWayNodes
-              }
+            case EvElemStart(_,"way",attrs,_) => parseRoad(parser,attrs,nodes,roads,graph)
+
             case _ => //pass
           }
         }
@@ -187,12 +205,81 @@ object OsmParser {
       }
     }
 
-    Logger.log(s"OSM File contains ${nodes.size} nodes, with ${ways} ways and ${wayEdges} edges.")
+    write(save,graph)
 
-    val namedLocations =
-      nodes.keys
-        .map { id => NamedLocation(id,nodes(id).location) }
+    val writer = new PrintWriter(new File(save))
 
-    ParseResult(graph,NamedLocations(namedLocations),NamedWays.EMPTY)
+    var stations=mutable.ListBuffer[WeightedGraph#Node]()
+
+
+    val gen =Random
+
+    for(i<-1 to numb){
+      stations+=graph.nodes(gen.nextInt(graph.nodes.length))
+    }
+
+
+    writer.write("id || name ||start|| end || type || distance(m)\n")
+
+
+
+    for(station_i<-stations){
+
+      for(station_j<-stations){
+
+        val (source,target)=(station_i,station_j)
+
+          if (source != target) {
+
+            val dijkstra = new Dijkstra[graph.type](graph)
+
+            // Halt when target is scanned true for normal dij
+            dijkstra.stopCondition = (S, D, P) => !S.contains(target)
+
+
+            val (distance, path) = dijkstra.compute(source)
+
+            var dis = -1.0
+
+            if (distance.contains(target)) {
+              dis = distance(target)
+            }
+
+            writer.write("road" + "||" + "road.name" + "||" + source + "||" + target + "||" + "road.highway" + "||" + dis + "\n")
+
+          }
+
+
+      }
+
+    }
+
+    writer.close()
+
+    /*val y=roads.head
+    val (source,target)=(graph.no, y._2.wayNodes(y._2.wayNodes.length-1))
+    val dijkstra = new Dijkstra[graph.type](graph)
+
+    // Halt when target is scanned true for normal dij
+    dijkstra.stopCondition = (S, D, P) => !S.contains(target)
+
+
+    val (distance, path) = dijkstra.compute(source)*/
+
+
+
+
+
+  }
+
+
+
+  def readData(path:String)={
+
+
+    val bb:WeightedGraph=read(path)
+
+    println(bb.edges.length)
+
   }
 }

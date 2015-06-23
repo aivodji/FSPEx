@@ -31,5 +31,6 @@ case class Vertex(location:Location, name:String, vertexType:VertexType) {
       case that: Vertex => this.location == that.location
       case _ => false
     }
+
 }
 
